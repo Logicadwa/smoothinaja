@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Delicious Bites - Checkout</title>
+<style>
+  body {
+    margin: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #fff8f0;
+    color: #333;
+    display: flex;
+    justify-content: center;
+    padding: 20px;
+  }
+  .container {
+    max-width: 480px;
+    width: 100%;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(255, 140, 40, 0.15);
+    padding: 30px 40px;
+  }
+  header {
+    font-family: 'Brush Script MT', cursive, sans-serif;
+    font-size: 2.75rem;
+    font-weight: 700;
+    color: #ff6f3c;
+    text-align: center;
+    margin-bottom: 25px;
+    text-shadow: 1.5px 1.5px 5px rgba(0,0,0,0.2);
+  }
+  h2 {
+    color: #bf360c;
+    margin-bottom: 25px;
+    border-bottom: 2px solid #ffbc9a;
+    padding-bottom: 10px;
+  }
+  .order-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 12px 0;
+    border-bottom: 1px solid #f5d5bd;
+    font-weight: 600;
+    color: #a84302;
+  }
+  .order-item:last-child {
+    border-bottom: none;
+  }
+  .order-item .name {
+    flex-grow: 1;
+  }
+  .order-item .qty {
+    margin: 0 15px;
+  }
+  .order-item .price {
+    min-width: 70px;
+    text-align: right;
+    font-weight: 700;
+    color: #d84315;
+  }
+  .total {
+    text-align: right;
+    margin-top: 25px;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #bf360c;
+  }
+  button.confirm-btn {
+    display: block;
+    width: 100%;
+    background: #bf360c;
+    color: white;
+    border: none;
+    font-weight: 700;
+    font-size: 1.3rem;
+    padding: 15px 0;
+    margin-top: 35px;
+    border-radius: 50px;
+    cursor: pointer;
+    box-shadow: 0 5px 18px rgba(191,54,12,0.5);
+    transition: background 0.3s ease;
+  }
+  button.confirm-btn:hover {
+    background: #a52f09;
+  }
+  .empty-message {
+    text-align: center;
+    font-style: italic;
+    color: #a05a39;
+    margin-top: 40px;
+    font-size: 1.1rem;
+  }
+  a.back-link {
+    display: inline-block;
+    margin-top: 25px;
+    color: #ff6f3c;
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.3s ease;
+  }
+  a.back-link:hover {
+    color: #e65c2f;
+  }
+</style>
+</head>
+<body>
+  <div class="container">
+    <header>Delicious Bites</header>
+    <h2>Checkout</h2>
+    <div id="order-summary">
+      <!-- Order items inserted here -->
+    </div>
+    <div class="total" id="order-total"></div>
+    <button class="confirm-btn" id="confirm-btn">Confirm Order</button>
+    <a href="index.html" class="back-link">← Back to Menu</a>
+  </div>
+<script>
+  const orderSummary = document.getElementById('order-summary');
+  const orderTotalElem = document.getElementById('order-total');
+  const confirmBtn = document.getElementById('confirm-btn');
+
+  // Load order data from localStorage
+  let order = JSON.parse(localStorage.getItem('deliciousBitesOrder') || '[]');
+
+  function formatPrice(price) {
+    return '$' + price.toFixed(2);
+  }
+
+  function renderOrderSummary() {
+    if (order.length === 0) {
+      orderSummary.innerHTML = '<p class="empty-message">No items in your order. Please go back to add some delicious food!</p>';
+      orderTotalElem.textContent = '';
+      confirmBtn.disabled = true;
+      return;
+    }
+    confirmBtn.disabled = false;
+    let total = 0;
+    orderSummary.innerHTML = '';
+    order.forEach(item => {
+      const itemTotal = item.price * item.quantity;
+      total += itemTotal;
+
+      const div = document.createElement('div');
+      div.className = 'order-item';
+
+      const nameSpan = document.createElement('span');
+      nameSpan.className = 'name';
+      nameSpan.textContent = item.name;
+
+      const qtySpan = document.createElement('span');
+      qtySpan.className = 'qty';
+      qtySpan.textContent = `x${item.quantity}`;
+
+      const priceSpan = document.createElement('span');
+      priceSpan.className = 'price';
+      priceSpan.textContent = formatPrice(itemTotal);
+
+      div.appendChild(nameSpan);
+      div.appendChild(qtySpan);
+      div.appendChild(priceSpan);
+
+      orderSummary.appendChild(div);
+    });
+    orderTotalElem.textContent = `Total: ${formatPrice(total)}`;
+  }
+
+  function confirmOrder() {
+    alert('Thank you for your order!\nYour delicious food will be ready soon.');
+    localStorage.removeItem('deliciousBitesOrder');
+    // Redirect back to main menu page or clear order details
+    window.location.href = 'index.html';
+  }
+
+  confirmBtn.addEventListener('click', confirmOrder);
+
+  window.onload = renderOrderSummary;
+</script>
+</body>
+</html>

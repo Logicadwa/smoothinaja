@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Delicious Bites - Order Food Online</title>
+<style>
+  /* Reset & basics */
+  * {
+    box-sizing: border-box;
+  }
+  body {
+    margin: 0; 
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #fff8f0;
+    color: #333;
+    display: flex;
+    justify-content: center;
+    padding: 20px;
+  }
+  .container {
+    max-width: 960px;
+    width: 100%;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(255, 140, 40, 0.15);
+    overflow: hidden;
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 20px;
+  }
+  header {
+    grid-column: span 2;
+    background: #ff6f3c;
+    color: white;
+    padding: 25px 40px;
+    text-align: center;
+    font-size: 2.5rem;
+    font-weight: 700;
+    font-family: 'Brush Script MT', cursive, sans-serif;
+    text-shadow: 1.5px 1.5px 5px rgba(0,0,0,0.2);
+    border-bottom: 6px solid #e65c2f;
+  }
+  main {
+    padding: 20px 30px;
+    overflow-y: auto;
+  }
+  h2 {
+    margin-top: 0;
+    margin-bottom: 18px;
+    font-weight: 700;
+    color: #ff5722;
+    border-bottom: 2px solid #ffbc9a;
+    padding-bottom: 8px;
+  }
+  .menu-item {
+    background: #fff4e6;
+    border-radius: 10px;
+    padding: 15px 20px;
+    margin-bottom: 18px;
+    box-shadow: 0 3px 8px rgba(255,111,60,0.15);
+    display: flex;
+    flex-direction: column;
+  }
+  .menu-item:last-child {
+    margin-bottom: 0;
+  }
+  .item-info {
+    flex-grow: 1;
+  }
+  .item-name {
+    font-weight: 700;
+    font-size: 1.15rem;
+    margin-bottom: 5px;
+  }
+  .item-desc {
+    font-style: italic;
+    font-size: 0.9rem;
+    color: #d35400;
+    margin-bottom: 10px;
+  }
+  .item-price {
+    font-weight: 700;
+    color: #e64a19;
+    margin-bottom: 12px;
+    font-size: 1.1rem;
+  }
+  button.order-btn {
+    background: #ff6f3c;
+    border: none;
+    color: white;
+    font-weight: 600;
+    font-size: 1rem;
+    padding: 10px 16px;
+    border-radius: 30px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+    align-self: flex-start;
+    box-shadow: 0 4px 10px rgba(255,111,60,0.3);
+  }
+  button.order-btn:hover {
+    background: #e65c2f;
+  }
+  aside {
+    background: #fff4e6;
+    border-radius: 12px;
+    padding: 20px 25px;
+    box-shadow: 0 5px 15px rgba(255,140,40,0.1);
+    display: flex;
+    flex-direction: column;
+  }
+  aside h2 {
+    border-color: #ff6f3c;
+    color: #bf360c;
+  }
+  .order-list {
+    flex-grow: 1;
+    margin-bottom: 15px;
+    overflow-y: auto;
+  }
+  .order-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 6px;
+    border-bottom: 1px solid #fadbd8;
+    align-items: center;
+  }
+  .order-item:last-child {
+    border-bottom: none;
+  }
+  .order-item-name {
+    font-weight: 600;
+    color: #a84302;
+  }
+  .order-item-qty {
+    margin: 0 10px;
+    font-weight: 600;
+    color: #a84302;
+  }
+  .order-item-price {
+    font-weight: 700;
+    color: #d84315;
+    min-width: 60px;
+    text-align: right;
+  }
+  .qty-controls {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  button.qty-btn {
+    background: #e64a19;
+    border: none;
+    color: white;
+    font-weight: 700;
+    font-size: 1rem;
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    cursor: pointer;
+    line-height: 1;
+    padding: 0;
+    box-shadow: 0 3px 6px rgba(255,111,60,0.3);
+  }
+  button.qty-btn:disabled {
+    background: #f1c9b3;
+    cursor: not-allowed;
+  }
+  .total {
+    font-size: 1.3rem;
+    font-weight: 700;
+    text-align: right;
+    color: #bf360c;
+  }
+  button.place-order-btn {
+    background: #bf360c;
+    border: none;
+    color: white;
+    font-weight: 700;
+    padding: 14px 0;
+    font-size: 1.2rem;
+    border-radius: 40px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+    box-shadow: 0 5px 18px rgba(191, 54, 12, 0.5);
+  }
+  button.place-order-btn:hover:not(:disabled) {
+    background: #a52f09;
+  }
+  button.place-order-btn:disabled {
+    background: #f1c9b3;
+    cursor: not-allowed;
+  }
+  /* Scrollbar for side panel */
+  aside .order-list::-webkit-scrollbar {
+    width: 6px;
+  }
+  aside .order-list::-webkit-scrollbar-thumb {
+    background-color: #ff6f3c;
+    border-radius: 3px;
+  }
+  @media (max-width: 768px) {
+    body {
+      padding: 10px;
+    }
+    .container {
+      grid-template-columns: 1fr;
+      max-width: 460px;
+    }
+    header {
+      font-size: 2rem;
+      padding: 18px 20px;
+    }
+    main, aside {
+      padding: 15px 20px;
+    }
+    button.order-btn {
+      padding: 8px 14px;
+      font-size: 0.95rem;
+    }
+    button.place-order-btn {
+      font-size: 1rem;
+      padding: 12px 0;
+    }
+  }
+</style>
+</head>
+<body>
+  <div class="container">
+    <header>Delicious Bites</header>
+    <main>
+      <h2>Menu</h2>
+      <div id="menu-items">
+        <!-- Menu items populated by JS -->
+      </div>
+    </main>
+    <aside>
+      <h2>Your Order</h2>
+      <div class="order-list" id="order-list">
+        <p>Your cart is empty.</p>
+      </div>
+      <div class="total" id="order-total">Total: $0.00</div>
+      <button id="place-order-btn" class="place-order-btn" disabled>Place Order</button>
+    </aside>
+  </div>
+<script>
+  // Food menu data
+  const menu = [
+    {
+      id: 1,
+      name: "Margherita Pizza",
+      description: "Classic pizza with fresh tomatoes, mozzarella & basil.",
+      price: 12.99,
+    },
+    {
+      id: 2,
+      name: "Spicy Buffalo Wings",
+      description: "Chicken wings tossed in tangy buffalo sauce.",
+      price: 9.49,
+    },
+    {
+      id: 3,
+      name: "Caesar Salad",
+      description: "Crisp romaine with creamy Caesar dressing & croutons.",
+      price: 8.25,
+    },
+    {
+      id: 4,
+      name: "Cheeseburger Deluxe",
+      description: "Juicy beef burger with cheddar, lettuce & tomato.",
+      price: 11.75,
+    },
+    {
+      id: 5,
+      name: "Veggie Pasta Primavera",
+      description: "Penne pasta with fresh veggies in garlic sauce.",
+      price: 13.30,
+    },
+    {
+      id: 6,
+      name: "Chocolate Lava Cake",
+      description: "Warm chocolate cake with molten center.",
+      price: 6.50,
+    },
+  ];
+
+  // Current order state
+  let order = {};
+
+  // References
+  const menuContainer = document.getElementById('menu-items');
+  const orderList = document.getElementById('order-list');
+  const orderTotalElem = document.getElementById('order-total');
+  const placeOrderBtn = document.getElementById('place-order-btn');
+
+  // Format price helper
+  function formatPrice(price) {
+    return '$' + price.toFixed(2);
+  }
+
+  // Render menu items
+  function renderMenu() {
+    menuContainer.innerHTML = '';
+    menu.forEach(item => {
+      const itemDiv = document.createElement('div');
+      itemDiv.className = 'menu-item';
+      itemDiv.innerHTML = `
+        <div class="item-info">
+          <div class="item-name">${item.name}</div>
+          <div class="item-desc">${item.description}</div>
+          <div class="item-price">${formatPrice(item.price)}</div>
+        </div>
+        <button class="order-btn" data-id="${item.id}">Add to Order</button>
+      `;
+      menuContainer.appendChild(itemDiv);
+    });
+  }
+
+  // Render order summary
+  function renderOrder() {
+    const orderIds = Object.keys(order);
+    if (orderIds.length === 0) {
+      orderList.innerHTML = '<p>Your cart is empty.</p>';
+      orderTotalElem.textContent = 'Total: $0.00';
+      placeOrderBtn.disabled = true;
+      return;
+    }
+    orderList.innerHTML = '';
+    let total = 0;
+    orderIds.forEach(id => {
+      const item = menu.find(i => i.id == id);
+      const qty = order[id];
+      const itemTotal = item.price * qty;
+      total += itemTotal;
+
+      const orderItemDiv = document.createElement('div');
+      orderItemDiv.className = 'order-item';
+
+      const nameSpan = document.createElement('span');
+      nameSpan.className = 'order-item-name';
+      nameSpan.textContent = item.name;
+
+      const qtyControls = document.createElement('span');
+      qtyControls.className = 'qty-controls';
+
+      const minusBtn = document.createElement('button');
+      minusBtn.className = 'qty-btn';
+      minusBtn.textContent = '−';
+      minusBtn.title = 'Decrease quantity';
+      minusBtn.onclick = () => updateQuantity(id, qty - 1);
+
+      const qtySpan = document.createElement('span');
+      qtySpan.className = 'order-item-qty';
+      qtySpan.textContent = qty;
+
+      const plusBtn = document.createElement('button');
+      plusBtn.className = 'qty-btn';
+      plusBtn.textContent = '+';
+      plusBtn.title = 'Increase quantity';
+      plusBtn.onclick = () => updateQuantity(id, qty + 1);
+
+      qtyControls.appendChild(minusBtn);
+      qtyControls.appendChild(qtySpan);
+      qtyControls.appendChild(plusBtn);
+
+      const priceSpan = document.createElement('span');
+      priceSpan.className = 'order-item-price';
+      priceSpan.textContent = formatPrice(itemTotal);
+
+      orderItemDiv.appendChild(nameSpan);
+      orderItemDiv.appendChild(qtyControls);
+      orderItemDiv.appendChild(priceSpan);
+
+      orderList.appendChild(orderItemDiv);
+    });
+    orderTotalElem.textContent = `Total: ${formatPrice(total)}`;
+    placeOrderBtn.disabled = false;
+  }
+
+  // Update quantity in order
+  function updateQuantity(id, newQty) {
+    if (newQty <= 0) {
+      delete order[id];
+    } else {
+      order[id] = newQty;
+    }
+    renderOrder();
+  }
+
+  // Handle add to order clicks
+  function addToOrder(id) {
+    if (order[id]) {
+      order[id]++;
+    } else {
+      order[id] = 1;
+    }
+    renderOrder();
+  }
+
+  // Place order handler
+  function placeOrder() {
+    if (Object.keys(order).length === 0) return;
+
+    // Save the order to localStorage
+    const orderArray = Object.keys(order).map(id => {
+      const item = menu.find(i => i.id == id);
+      return {
+        id: item.id,
+        name: item.name,
+        price: item.price,
+        quantity: order[id],
+      };
+    });
+    localStorage.setItem('deliciousBitesOrder', JSON.stringify(orderArray));
+
+    // Redirect to checkout page
+    window.location.href = 'checkout.html';
+  }
+    // Reset order after placing
+    order = {};
+    renderOrder();
+
+  // Initialization
+  function init() {
+    renderMenu();
+    renderOrder();
+
+    menuContainer.addEventListener('click', e => {
+      if (e.target.classList.contains('order-btn')) {
+        const id = e.target.getAttribute('data-id');
+        addToOrder(id);
+      }
+    });
+    placeOrderBtn.addEventListener('click', placeOrder);
+  }
+
+  window.onload = init;
+</script>
+</body>
+</html>
+
